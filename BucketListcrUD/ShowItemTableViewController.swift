@@ -41,7 +41,7 @@ class ShowItemTableViewController: UITableViewController, AddItemDelegate {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        performSegue(withIdentifier: "EditSegue", sender: indexPath)
+        performSegue(withIdentifier: "AddSegue", sender: indexPath)
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -53,8 +53,8 @@ class ShowItemTableViewController: UITableViewController, AddItemDelegate {
         let destination = segue.destination as! UINavigationController
         let newViewController = destination.topViewController as! AddNewItemViewController
         newViewController.delegate = self
-        if segue.identifier == "EditSegue" {
-            let indexPath = sender as! NSIndexPath
+        if let indexPath = sender as? NSIndexPath {
+            //let indexPath = sender as! NSIndexPath
             newViewController.item = list[indexPath.section]
             newViewController.indexPath = indexPath
         }
