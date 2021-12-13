@@ -6,14 +6,28 @@
 //
 
 import UIKit
+import CoreData
 
 class ShowItemTableViewController: UITableViewController, AddItemDelegate {
 
-    var list = ["Playing Football","Swim With Sharks","Getting Marred"]
+    var list = [BucketListItem]()
+    
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    let save = (UIApplication.shared.delegate as! AppDelegate).saveContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        fetchAllItems()
+    }
+    
+    func fetchAllItems() {
+        let itemRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "BucketListItem")
+        do {
+            let result = try context.fetch(itemRequest)
+            list = result as! [BucketListItem]
+        }catch {
+            print(error)
+        }
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -30,17 +44,21 @@ class ShowItemTableViewController: UITableViewController, AddItemDelegate {
             return headerView
     }
     
-    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 10.0
-    }
+//    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+//        return 10.0
+//    }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell", for: indexPath)
-        cell.textLabel?.text = list[indexPath.section]
+        cell.textLabel?.text = list[indexPath.section].item
         return cell
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        performSegue(withIdentifier: "AddSegue", sender: indexPath)
+//    }
+    
+    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
         performSegue(withIdentifier: "AddSegue", sender: indexPath)
     }
     
@@ -54,19 +72,22 @@ class ShowItemTableViewController: UITableViewController, AddItemDelegate {
         let newViewController = destination.topViewController as! AddNewItemViewController
         newViewController.delegate = self
         if let indexPath = sender as? NSIndexPath {
-            //let indexPath = sender as! NSIndexPath
-            newViewController.item = list[indexPath.section]
+            newViewController.item = list[indexPath.section].item
             newViewController.indexPath = indexPath
         }
     }
     
     func addNewItem(item: String, at indexPath: NSIndexPath?) {
         if let ip = indexPath {
-            list[ip.section] = item
+            let itemInList = list[ip.section]
+            itemInList.item = item
         }
         else {
-            list.append(item)
+            let itemInList = NSEntityDescription.insertNewObject(forEntityName: "BucketListItem", into: context) as! BucketListItem
+            itemInList.item = item
+            list.append(itemInList)
         }
+        save()
         tableView.reloadData()
     }
 }
