@@ -21,10 +21,12 @@ class ShowItemTableViewController: UITableViewController, AddItemDelegate {
     }
     
     func fetchAllItems() {
-        let itemRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "BucketListItem")
+        let itemRequest: NSFetchRequest<BucketListItem> = BucketListItem.fetchRequest()
+//        let itemRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "BucketListItem")
         do {
-            let result = try context.fetch(itemRequest)
-            list = result as! [BucketListItem]
+//            let result = try context.fetch(itemRequest)
+//            list = result as! [BucketListItem]
+            list = try context.fetch(itemRequest)
         }catch {
             print(error)
         }
@@ -44,9 +46,9 @@ class ShowItemTableViewController: UITableViewController, AddItemDelegate {
             return headerView
     }
     
-//    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-//        return 10.0
-//    }
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 10.0
+    }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell", for: indexPath)
@@ -63,7 +65,10 @@ class ShowItemTableViewController: UITableViewController, AddItemDelegate {
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        list.remove(at: indexPath.section)
+        context.delete(list[indexPath.section])
+        save()
+//        list.remove(at: indexPath.section)
+        fetchAllItems()
         tableView.reloadData()
     }
     
@@ -83,11 +88,12 @@ class ShowItemTableViewController: UITableViewController, AddItemDelegate {
             itemInList.item = item
         }
         else {
-            let itemInList = NSEntityDescription.insertNewObject(forEntityName: "BucketListItem", into: context) as! BucketListItem
-            itemInList.item = item
-            list.append(itemInList)
+            let newItem = BucketListItem(context: context)
+            newItem.item = item
+//            list.append(newItem)
         }
         save()
+        fetchAllItems()
         tableView.reloadData()
     }
 }
