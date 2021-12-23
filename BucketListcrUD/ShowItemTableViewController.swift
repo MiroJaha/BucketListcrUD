@@ -64,6 +64,7 @@ class ShowItemTableViewController: UITableViewController, AddItemDelegate {
         performSegue(withIdentifier: "AddSegue", sender: indexPath)
     }
     
+    //Delete Functionality
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         context.delete(list[indexPath.section])
         save()
